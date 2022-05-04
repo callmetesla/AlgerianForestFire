@@ -2,6 +2,12 @@ import pandas as pd
 import numpy as np
 
 
+def normalize_columns_fn(df):
+    for col in (df.columns):
+        df[col] = (df[col]-df[col].min())/(df[col].max()-df[col].min())
+    return df
+
+
 class DataLoader(object):
     def __init__(self, train_csv_path, test_csv_path):
         self.train_df = self._load_data(train_csv_path)
@@ -10,6 +16,11 @@ class DataLoader(object):
     def _load_data(self, path):
         return pd.read_csv(path)
     
+    def filter_columns(self, columns):
+        print(columns)
+        self.train_df = self.train_df[columns]
+        self.test_df = self.test_df[columns]
+
     def get_data(self):
         train_Y = self.train_df['Classes']
         train_X = self.train_df.drop(columns=['Date', 'Classes'])
@@ -27,6 +38,7 @@ class KFoldsGenerator(object):
     def _perform_k_folds(self):
         train_dates = self.train_df['Date'].unique()
         train_k_idxs = np.array_split(train_dates, self.k_folds)
+        print(train_k_idxs)
         out_list = []
         for i in range(self.k_folds):
             inner_list = []
